@@ -1,0 +1,42 @@
+version: "3.8"
+
+services:
+  postgres:
+    image: postgres:15
+    container_name: postgres_db
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin_ui
+    restart: always
+    env_file:
+      - .env
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+
+  qdrant:
+    image: qdrant/qdrant:v1.8.2
+    container_name: qdrant_local
+    restart: unless-stopped
+    environment:
+      - QDRANT_URL=https://547f95e8-16fa-4541-9437-1b7311503bef.us-east-1-1.aws.cloud.qdrant.io:6333
+    ports:
+      - "6333:6333"
+      - "6334:6334"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+volumes:
+  postgres_data:
+    driver: local
+  qdrant_data:
+    driver: local
